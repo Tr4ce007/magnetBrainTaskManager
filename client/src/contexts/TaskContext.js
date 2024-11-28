@@ -5,11 +5,14 @@ const TaskContext = createContext();
 
 export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
+  const [ totalPages, setTotalPages] = useState(1);
 
   const fetchTasks = async () => {
     try {
       const { data } = await api.fetchTasks();
       setTasks(data);
+      const { data: pages } = await api.fetchTaskCount();
+      setTotalPages(pages);
     } catch (error) {
       console.log(error);
     }
@@ -44,10 +47,19 @@ export const TaskProvider = ({ children }) => {
       console.log(error);
     }
   };
+
+  const paginationApi = async (page) => {
+    try {
+      const  { data } = await api.fetchTasksByPage(page);
+      setTasks(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   
 
   return (
-    <TaskContext.Provider value={{ tasks, fetchTasks, addTask, updateTask, deleteTask }}>
+    <TaskContext.Provider value={{ tasks, fetchTasks, addTask, updateTask, deleteTask, totalPages, paginationApi }}>
       {children}
     </TaskContext.Provider>
   );

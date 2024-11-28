@@ -120,3 +120,25 @@
   background-color: #fff;
   color: #e20b0b;
 }
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.pagination-button {
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.pagination-active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}

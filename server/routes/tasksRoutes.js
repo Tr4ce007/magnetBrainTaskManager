@@ -13,6 +13,38 @@ router.get('/', async (req, res) => {
         res.status(404).json({ message: error.message });
     }
 });
+
+router.get('/count', async (req, res) => {
+    try {
+        const taskCount = await TasksModel.countDocuments();
+        const pages = Math.ceil(taskCount / 5);
+        console.log(pages);
+        res.status(200).json({ pages });
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({ message: error.message });
+    }
+});
+
+router.get('/page/:pageNumber', async (req, res) => {
+    try {
+        const pageNumber = parseInt(req.params.pageNumber);
+        const pageSize = 5;
+        const skip = (pageNumber - 1) * pageSize;
+
+        const tasks = await TasksModel.find()
+            .skip(skip)
+            .limit(pageSize);
+
+        res.status(200).json(tasks);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({ message: error.message });
+    }
+});
+
+
+
 router.post('/', async (req, res) => {
     const { title, description, dueDate, status, priority, assignedTo } = req.body;
     try {

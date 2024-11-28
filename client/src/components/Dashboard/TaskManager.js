@@ -11,7 +11,7 @@ const priorityColors = {
 };
 
 const TaskManager = () => {
-  const { tasks, fetchTasks, addTask, updateTask, deleteTask } = useTask();
+  const { tasks, fetchTasks, addTask, updateTask, deleteTask, paginationApi, totalPages } = useTask();
   const { fetchUsers, users } = useUser();
   const [selectedTask, setSelectedTask] = useState(null);
   const [formState, setFormState] = useState({
@@ -24,11 +24,11 @@ const TaskManager = () => {
   });
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [pageCount, setPageCount] = useState(0);
 
-  useEffect(() => {
-    handlePageClick({ selected: 0 });
-  }, []);
+  const handlePageClick = (page) => {
+    setCurrentPage(page);
+    paginationApi(page);
+  };
 
   useEffect(() => {
     fetchTasks();
@@ -54,29 +54,42 @@ const TaskManager = () => {
     setSelectedTask(task);
     setFormState(task);
   };
+  const pageNumbers = Array.from({ length: totalPages.pages }, (_, i) => i + 1);
 
   return (
     <ManagerLayout
       listComponent={
-        <ul className="task-list">
-          {tasks.map((task) => (
-            <li
-              key={task._id}
-              className={`task-item ${selectedTask?.id === task.id ? "task-item-selected" : ""
-                }`}
-              style={{ backgroundColor: priorityColors[task.priority] }}
-              onClick={() => handleTaskClick(task)}
-            >
-              <strong className="task-title">{task.title}</strong>
-              <p className="task-details">Description: {task.description}</p>
-              <p className="task-details">Status: {task.status}</p>
-              <p className="task-details">Due: {task.dueDate}</p>
-              <p className="task-details">Assigned to: {task.assignedTo}</p>
-              <p className="task-button"><button className="task-delete-button" onClick={() => deleteTask(task._id)}>Delete</button></p>
-            </li>
-          ))}
-        </ul>
-
+        <>
+          <div className="pagination-container">
+            {pageNumbers.map((page) => (
+              <button
+                key={page}
+                className={`pagination-button ${page === currentPage ? "pagination-active" : ""}`}
+                onClick={() => handlePageClick(page)}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+          <ul className="task-list">
+            {tasks.map((task) => (
+              <li
+                key={task._id}
+                className={`task-item ${selectedTask?.id === task.id ? "task-item-selected" : ""
+                  }`}
+                style={{ backgroundColor: priorityColors[task.priority] }}
+                onClick={() => handleTaskClick(task)}
+              >
+                <strong className="task-title">{task.title}</strong>
+                <p className="task-details">Description: {task.description}</p>
+                <p className="task-details">Status: {task.status}</p>
+                <p className="task-details">Due: {task.dueDate}</p>
+                <p className="task-details">Assigned to: {task.assignedTo}</p>
+                <p className="task-button"><button className="task-delete-button" onClick={() => deleteTask(task._id)}>Delete</button></p>
+              </li>
+            ))}
+          </ul>
+        </>
       }
       formComponent={
         <form onSubmit={handleFormSubmit} className="task-form">
@@ -153,19 +166,6 @@ const TaskManager = () => {
           </div>
         </form>
 
-      }
-      paginationComponent={
-        <ReactPaginate
-          previousLabel={"Previous"}
-          nextLabel={"Next"}
-          breakLabel={"..."}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
-          onPageChange={handlePageClick}
-          containerClassName={"pagination"}
-          activeClassName={"active"}
-        />
       }
     />
   );
